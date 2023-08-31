@@ -33,11 +33,7 @@ def check_alive(possible_blocks, blocks) -> list[Tuple[int, int]]:
 
 def cycle(blocks):
     possible_blocks = get_possible(blocks)
-    dead = check_dead(possible_blocks, blocks)
-    alive = check_alive(blocks, blocks)
-    print(dead)
-    print(alive)
-    return dead + alive
+    return check_dead(possible_blocks, blocks) + check_alive(blocks, blocks)
 
 
 def get_stick():
@@ -102,6 +98,19 @@ def pulse():
         (10, -2),
         (10, -3),
         (10, -4),
+        # fourth one
+        (6, -7),
+        (7, -7),
+        (8, -7),
+        (5, -8),
+        (5, -9),
+        (5, -10),
+        (6, -12),
+        (7, -12),
+        (8, -12),
+        (10, -8),
+        (10, -9),
+        (10, -10),
     ]
 
 
@@ -113,21 +122,20 @@ def print_blocks(blocks):
     max_y = max([i[1] for i in blocks])
     max_xy = max(max_x, max_y)
     min_xy = min(min_x, min_y)
-    print("-" * 15)
-    for j in range(min_xy, max_xy+1):
+    print("-" * 50)
+    for j in range(min_y, max_y + 1):
         print("\t")
-        for i in range(min_xy, max_xy+4):
+        for i in range(min_x, max_x + 1):
             if (i, j) in blocks:
-                print("[x]", end="")
+                print(" x ", end="")
             else:
-                print("[ ]", end="")
+                print("   ", end="")
         print()
 
 
 def main() -> int:
-    blocks = pulse()
+    blocks = space_ship()
     print_blocks(blocks)
-    exit()
     while True:
         blocks = cycle(blocks)
         print_blocks(blocks)
