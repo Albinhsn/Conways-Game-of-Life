@@ -40,13 +40,29 @@ def check_alive(possible_blocks, blocks) -> list[Tuple[int, int]]:
 
 def cycle(blocks):
     possible_blocks = get_possible(blocks)
-    return check_dead(possible_blocks, blocks) + check_alive(blocks, blocks)
+    new_blocks = check_dead(possible_blocks, blocks) + check_alive(blocks, blocks)
+
+    return new_blocks
 
 
 def paint_blocks(stdscr, blocks, string):
     for s in blocks:
         stdscr.addstr(s[1], s[0], string)
     stdscr.refresh()
+
+
+def center_blocks(blocks, h, w):
+    flag = False
+    edge = (0, 0)
+    for block in blocks:
+        if block[0] == w or block[0] == 0 or block[1] == h or block[1] == 0:
+            flag = True
+            edge = block
+    if not flag:
+        return blocks
+    if edge[0] == 0 or edge[1] == 0:
+        return [(b[0] + w // 2, b[1] + h // 2) for b in blocks]
+    return [((b[0] - edge[0]) + w // 2, (b[1] - edge[1]) + h // 2) for b in blocks]
 
 
 def main(stdscr):
@@ -58,9 +74,10 @@ def main(stdscr):
     blocks = get_pos(height // 2, width // 2)
     while True:
         paint_blocks(stdscr, blocks, "x")
-        time.sleep(0.75)
+        time.sleep(0.01)
         paint_blocks(stdscr, blocks, " ")
         blocks = cycle(blocks)
+        blocks = center_blocks(blocks, height, width)
 
 
 if __name__ == "__main__":
