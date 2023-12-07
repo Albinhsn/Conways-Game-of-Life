@@ -29,12 +29,37 @@ Vector2 *createVec2(int x, int y) {
   return vec;
 }
 
-struct Array *spaceship() {
-  int coords[10][2] = {{0, 0},  {1, 0},  {2, 0},   {3, 0},  {3, -1},
-                       {3, -2}, {2, -3}, {-1, -1}, {-1, -3}};
-  struct Array *array = initArray(10);
+struct Array *sailor() {
+  int size = 5;
+  int coords[5][2] = {{0, 0}, {1, 0}, {0, -1}, {-1, 1}, {-1, -1}};
+  struct Array *array = initArray(size);
+  for (int i = 0; i < size; i++) {
+    array->node[i] = *createVec2(coords[i][0], coords[i][1]);
+    array->length++;
+  }
 
-  for (int i = 0; i < 10; i++) {
+  return array;
+}
+struct Array *stick() {
+  int size = 3;
+  int coords[3][2] = {{0, 0}, {0, -1}, {0, -2}};
+  struct Array *array = initArray(size);
+
+  for (int i = 0; i < size; i++) {
+    array->node[i] = *createVec2(coords[i][0], coords[i][1]);
+    array->length++;
+  }
+
+  return array;
+}
+
+struct Array *spaceship() {
+  int size = 9;
+  int coords[9][2] = {{0, 0},  {1, 0},  {2, 0},   {3, 0},  {3, -1},
+                       {3, -2}, {2, -3}, {-1, -1}, {-1, -3}};
+  struct Array *array = initArray(size);
+
+  for (int i = 0; i < size; i++) {
     array->node[i] = *createVec2(coords[i][0], coords[i][1]);
     array->length++;
   }
@@ -75,6 +100,9 @@ int getNumberOfNeighbours(struct Array *array, int x, int y) {
   int neighbours = 0;
   for (int i = 0; i < array->length; ++i) {
     Vector2 node = array->node[i];
+    if (node.x == x && node.y == y) {
+      continue;
+    }
     if (abs((int)node.x - x) <= 1 && abs((int)node.y - y) <= 1) {
       neighbours++;
     }
@@ -110,26 +138,25 @@ void updateNodes(struct Array *array) {
   // Figure out which becomes alive
   struct Array *newNodes = initArray(8);
   for (int i = 0; i < array->length; ++i) {
-    printf("Node: %d %d\n", (int)array->node[i].x, (int)array->node[i].y);
     struct Array *neighbours = getNeighbours(array->node[i]);
     for (int j = 0; j < neighbours->length; j++) {
 
       Vector2 node = neighbours->node[j];
       if (nodeBecomesAlive(array, node.x, node.y) &&
-          !inArray(array, node.x, node.y)) {
-        printf("New Alive: %d %d\n", (int)node.x, (int)node.y);
+          !inArray(array, node.x, node.y) &&
+          !inArray(newNodes, node.x, node.y)) {
         appendNode(newNodes, node.x, node.y);
       }
     }
 
     // Figure out which dies
     int x = array->node[i].x, y = array->node[i].y;
-    if (!nodeDies(array, x, y)) {
-      printf("New Dead: %d %d\n", x, y);
+    if (!nodeDies(array, x, y) && !inArray(newNodes, x, y)) {
       appendNode(newNodes, x, y);
     }
     free(neighbours);
-    printf("-------------------------\n");
+  }
+  for (int i = 0; i < newNodes->length; ++i) {
   }
   free(array->node);
   array->node = newNodes->node;
@@ -152,9 +179,9 @@ int main() {
   while (!WindowShouldClose()) // Detect window close button or ESC key
   {
     // Update
+
     updateNodes(array);
     WaitTime(0.5);
-
     // Draw
     //----------------------------------------------------------------------------------
     BeginDrawing();
